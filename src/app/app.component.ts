@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { of, interval, fromEvent, merge } from 'rxjs';
-import { map, filter, throttleTime } from 'rxjs/operators';
+import { of, interval, fromEvent, merge, pipe } from 'rxjs';
+import { map, filter, throttleTime, take, takeUntil, takeWhile } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -37,7 +37,13 @@ export class AppComponent {
     throw new Error("Method not implemented.");
   }
   operatorsFiltering() {
-    throw new Error("Method not implemented.");
+    interval(1000)
+      .pipe(
+        take(5),
+        takeWhile((val) => val < 5),
+        takeUntil(fromEvent(document, 'click'))
+      )
+      .subscribe(console.log, null, () => console.log('complete'))
   }
   subjects() {
     throw new Error("Method not implemented.");
