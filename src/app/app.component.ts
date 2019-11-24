@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { of, interval, fromEvent, merge, pipe, BehaviorSubject } from 'rxjs';
-import { map, filter, throttleTime, take, takeUntil, takeWhile } from 'rxjs/operators';
 import { ajax } from 'rxjs/ajax';
 import { parse, stringify } from "query-string";
+import { of, interval, fromEvent, merge, pipe, BehaviorSubject, throwError, from } from 'rxjs';
+import { map, filter, throttleTime, take, takeUntil, takeWhile, catchError } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -10,11 +10,24 @@ import { parse, stringify } from "query-string";
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  contacts = [
+    { name: 'Joe', phone: 1234234 },
+    { name: 'Mike', phone: 81234234 },
+    { name: 'Bob', phone: 41234234 },
+    { name: 'Jack', phone: 34234 },
+    { name: 'Carlos', phone: 234234 }
+  ];
+  images = [
+    'https://api.debugger.pl/assets/tomato.jpg',
+    'https://api.debugger.pl/assets/pumpkin.jpg',
+    'https://api.debugger.pl/assets/potatoes.jpg'
+  ];
+
   customOperator() {
     throw new Error("Method not implemented.");
   }
   higherOrder() {
-    throw new Error("Method not implemented.");
+    from(this.contacts).subscribe(console.log)
   }
   hotvscold() {
     throw new Error("Method not implemented.");
@@ -56,7 +69,11 @@ export class AppComponent {
     filters.subscribe((val) => {
       const params = stringify(val);
       ajax(`https://api.debugger.pl/items?${params}`)
-        .pipe((resp) => resp)
+        .pipe((resp) => resp,
+          catchError((err) => {
+            return throwError(err)
+          }))
+
         .subscribe(console.log)
     }
     )
@@ -99,12 +116,12 @@ export class AppComponent {
   constructor() {
     // this.observableAndObserver();
     // this.observables();
-    this.subjects();
+    // this.subjects();
     // this.operatorsFiltering();
     // this.operatorsTransformation();
     // this.operatorsCombination();
     // this.hotvscold();
-    // this.higherOrder()
+    this.higherOrder()
     // this.customOperator();
   }
 }
