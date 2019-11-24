@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
-import { of, interval, fromEvent, merge, pipe } from 'rxjs';
+import { of, interval, fromEvent, merge, pipe, BehaviorSubject } from 'rxjs';
 import { map, filter, throttleTime, take, takeUntil, takeWhile } from 'rxjs/operators';
+import { ajax } from 'rxjs/ajax';
+import { parse, stringify } from "query-string";
 
 @Component({
   selector: 'app-root',
@@ -46,7 +48,23 @@ export class AppComponent {
       .subscribe(console.log, null, () => console.log('complete'))
   }
   subjects() {
-    throw new Error("Method not implemented.");
+    const filters = new BehaviorSubject({
+      currentPage: 1,
+      itemsPerPage: 5,
+    })
+
+    filters.subscribe((val) => {
+      const params = stringify(val);
+      ajax(`https://api.debugger.pl/items?${params}`)
+        .pipe((resp) => resp)
+        .subscribe(console.log)
+    }
+    )
+
+    fromEvent(document, 'click')
+      .subscribe(() => {
+        filters.next({ ...filters.value, itemsPerPage: Math.ceil(Math.random() * 10) })
+      })
   }
   observables() {
     interval(1000)
@@ -80,11 +98,11 @@ export class AppComponent {
 
   constructor() {
     // this.observableAndObserver();
-    this.observables();
-    // this.subjects();
+    // this.observables();
+    this.subjects();
     // this.operatorsFiltering();
     // this.operatorsTransformation();
-    this.operatorsCombination();
+    // this.operatorsCombination();
     // this.hotvscold();
     // this.higherOrder()
     // this.customOperator();
